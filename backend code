@@ -1,0 +1,135 @@
+package com.mycompany.javacalculatorapp;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class Javacalculatorapp extends JFrame {
+
+    // GUI components
+    private JTextField display = new JTextField("0");
+    private JLabel status = new JLabel("Status: Ready");
+
+    // variables for calculation
+    private double firstNum = 0;
+    private String operator = "";
+    private boolean startNewNumber = true;
+
+    public Javacalculatorapp() {
+        // set window title and layout
+        setTitle("My Calculator Project");
+        setLayout(new BorderLayout(10, 10)); 
+
+        // text field for the display
+        display.setEditable(false); 
+        display.setHorizontalAlignment(JTextField.RIGHT);
+        display.setFont(new Font("Monospaced", Font.BOLD, 20));
+        add(display, BorderLayout.NORTH);
+
+        // panel for the buttons
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 4, 5, 5));
+
+        String[] labels = {
+            "7", "8", "9", "/",
+            "4", "5", "6", "*",
+            "1", "2", "3", "-",
+            "0", "C", "=", "+"
+        };
+
+        // add buttons using a loop
+        for (String label: labels) {
+            JButton btn = new JButton(label);
+            
+            btn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    handleButtonClick(label);
+                }
+            });
+            
+            buttonPanel.add(btn);
+        }
+
+        add(buttonPanel, BorderLayout.CENTER);
+
+        // add status bar at the bottom
+        status.setBorder(BorderFactory.createEtchedBorder());
+        add(status, BorderLayout.SOUTH);
+
+        // basic window settings
+        setSize(300, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); 
+        setVisible(true);
+    }
+
+    private void handleButtonClick(String value) {
+        status.setText("Status: Ready"); // reset status
+
+        if (value.equals("C")) {
+            // clear button pressed
+            display.setText("0");
+            firstNum = 0;
+            operator = "";
+            startNewNumber = true;
+        } 
+        else if (value.equals("=")) {
+            // equals button pressed
+            calculate();
+            operator = "";
+        } 
+        else if ("+-*/".contains(value)) {
+            // operator clicked
+            firstNum = Double.parseDouble(display.getText());
+            operator = value;
+            startNewNumber = true;
+        } 
+        else {
+            // numbers clicked
+            if (startNewNumber) {
+                display.setText(value);
+                startNewNumber = false;
+            } else {
+                display.setText(display.getText() + value);
+            }
+        }
+    }
+
+    private void calculate() {
+        double secondNum = Double.parseDouble(display.getText());
+        double result = 0;
+
+        // check for division by zero error
+        if (operator.equals("/") && secondNum == 0) {
+            status.setText("Status: Error - Division by Zero");
+            display.setText("Error");
+            startNewNumber = true;
+            return;
+        }
+
+        // do the math
+        switch (operator) {
+            case "+": 
+                result = firstNum + secondNum; 
+                break;
+            case "-": 
+                result = firstNum - secondNum; 
+                break;
+            case "*": 
+                result = firstNum * secondNum; 
+                break;
+            case "/": 
+                result = firstNum / secondNum; 
+                break;
+            default: 
+                return; 
+        }
+
+        display.setText(String.valueOf(result));
+        startNewNumber = true;
+    }
+
+    public static void main(String[] args) {
+        // run the app
+        new Javacalculatorapp();
+    }
+}
